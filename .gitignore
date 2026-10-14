@@ -4,3 +4,4 @@ target/
 spark_template/data/data_raw.json
 spark_template/data
 spark_template/idea
+spark_template/.idea
