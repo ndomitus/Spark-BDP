@@ -162,7 +162,14 @@ object RDDAssignment {
     * @return RDD containing Tuples with the repository name, the number of commits made to the repository as
     *         well as the names of the unique committers to this repository.
     */
-  def assignment_7(commits: RDD[Commit]): RDD[(String, Long, Iterable[String])] = ???
+  def assignment_7(commits: RDD[Commit]): RDD[(String, Long, Iterable[String])] = {
+    commits
+      .map(c => (c.url.split("/")(5), (1L, Set(c.commit.author.name))))
+      .reduceByKey{
+        case ((count1, name1), (count2, name2)) => (count1 + count2,name1.union(name2))
+      }
+      .map{ case (repo, (count, names)) => (repo, count, names)}
+  }
 
   /**
     * Return an RDD of Tuples containing the repository name and all the files that are contained in this repository.
