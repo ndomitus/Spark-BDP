@@ -1,13 +1,13 @@
 package RDDAssignment
 
 import java.util.UUID
-
 import java.math.BigInteger
 import java.security.MessageDigest
-
 import org.apache.spark.graphx.Graph
 import org.apache.spark.rdd.RDD
 import utils.{Commit, File, Stats}
+
+import scala.annotation.tailrec
 
 object RDDAssignment {
 
@@ -124,7 +124,29 @@ object RDDAssignment {
     * @return RDD of Tuples containing a commit author's name and a Tuple which contains the length of the longest
     *         'revert streak' as well its frequency.
     */
-  def assignment_6(commits: RDD[Commit]): RDD[(String, (Int, Int))] = ???
+  def assignment_6(commits: RDD[Commit]): RDD[(String, (Int, Int))] = {
+    commits
+      .map(c => (c.commit.author.name, revertStreak(c.commit.message)))
+      .filter(_._2 > 0)
+      .map{ case (name, streak)  => (name, (streak, 1)) }
+      .reduceByKey{ case ((len1, freq1), (len2, freq2)) =>
+        if(len1 > len2) (len1, freq1)
+        else if(len2 > len1) (len2, freq2)
+        else (len1, freq1 + freq2)
+      }
+
+  }
+
+  def revertStreak(str: String): Int = {
+
+    @tailrec
+    def helper(s: String, acc: Int): Int = {
+      if(s.startsWith("Revert")) helper(s.stripPrefix("Revert").dropWhile(c => c == ' ' || c == '"'), acc + 1)
+      else acc
+    }
+
+    helper(str, 0)
+  }
 
 
   /**
