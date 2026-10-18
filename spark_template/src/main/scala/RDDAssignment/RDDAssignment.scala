@@ -99,7 +99,15 @@ object RDDAssignment {
     * @return RDD of Strings representing the usernames that have either only committed to repositories or only own
     *         repositories.
     */
-  def assignment_5(commits: RDD[Commit]): RDD[String] = ???
+  def assignment_5(commits: RDD[Commit]): RDD[String] = {
+    val owners = commits.map(c => c.url.split("/")(4)).distinct()
+    val commiters = commits.map(c => c.commit.author.name).distinct()
+
+    val ownersWithoutCommiters = owners.subtract(commiters)
+    val commitersWithoutOwners = commiters.subtract(owners)
+
+    ownersWithoutCommiters.union(commitersWithoutOwners)
+  }
 
   /**
     * Sometimes developers make mistakes and sometimes they make many many of them. One way of observing mistakes in commits is by
