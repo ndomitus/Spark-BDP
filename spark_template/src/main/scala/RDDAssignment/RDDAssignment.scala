@@ -78,8 +78,8 @@ object RDDAssignment {
     val userSet = users.toSet
 
     commits
-      .filter(c => userSet.contains(c.commit.author.name))
-      .map(c => (c.commit.author.name, c.stats match {
+      .filter(c => userSet.contains(c.commit.committer.name))
+      .map(c => (c.commit.committer.name, c.stats match {
         case Some(stat) => stat
         case _ => Stats(0, 0, 0)
       })) //sau .getOrElse(Stats(0,0,0))
