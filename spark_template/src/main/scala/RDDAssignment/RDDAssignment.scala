@@ -210,7 +210,20 @@ object RDDAssignment {
     * @return RDD containing Tuples representing a file name, its corresponding commit SHA's and a Stats object
     *         representing the total aggregation of changes for a file.
     */
-  def assignment_9(commits: RDD[Commit], repository: String): RDD[(String, Seq[String], Stats)] = ???
+  def assignment_9(commits: RDD[Commit], repository: String): RDD[(String, Seq[String], Stats)] = {
+    commits
+      .filter(c => c.url.split("/")(5).equals(repository))
+      .flatMap { c =>
+        c.files.flatMap(f => f.filename.map(n => (n, (Seq(c.sha), Stats(f.changes, f.additions, f.deletions)))))
+      }
+      .reduceByKey{
+        case ((sha1, stat1), (sha2, stat2)) =>
+          (sha1 ++ sha2, Stats(stat1.total + stat2.total, stat1.additions + stat2.additions, stat1.deletions + stat2.deletions))
+      }
+      .map{
+        case (name, (sha, stats)) => (name, sha, stats)
+      }
+  }
 
   /**
     * We want to generate an overview of the work done by a user per repository. For this we want an RDD containing
