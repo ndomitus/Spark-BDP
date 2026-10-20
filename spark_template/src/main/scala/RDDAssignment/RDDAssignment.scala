@@ -186,7 +186,7 @@ object RDDAssignment {
     commits
       .flatMap{ c =>
         val repo = c.url.split("/")(5)
-        val date = c.commit.author.date
+        val date = c.commit.committer.date
         c.files.flatMap(f => f.filename.map(fn => ((repo, fn), (date, f))))
       }
       .reduceByKey{
