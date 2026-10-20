@@ -193,7 +193,7 @@ object RDDAssignment {
         case ((date1, file1), (date2, file2)) =>  if (date1.after(date2)) (date1, file1) else (date2, file2)
       }
       .map{
-        case ((repo, fn), (date, f)) => (repo, Iterable(f))
+        case ((repo, _), (_, f)) => (repo, Iterable(f))
       }
       .reduceByKey(_++_)
   }
