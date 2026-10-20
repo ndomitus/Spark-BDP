@@ -244,7 +244,7 @@ object RDDAssignment {
         case (Some(s1), Some(s2)) => Option(Stats(s1.total + s2.total, s1.additions + s2.additions, s1.deletions + s2.deletions))
         case (Some(s1), _) => Some(s1)
         case (_, Some(s2)) => Some(s2)
-        case (_) => None
+        case _ => None
       }
       .map{
         case ((name, repo), stats) => (name, repo, stats)
