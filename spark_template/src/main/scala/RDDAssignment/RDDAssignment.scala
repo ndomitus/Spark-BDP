@@ -237,7 +237,19 @@ object RDDAssignment {
     * @return RDD containing Tuples of the committer's name, the repository name and an `Option[Stat]` object representing additions,
     *         deletions and the total contribution to this repository by this committer.
     */
-  def assignment_10(commits: RDD[Commit]): RDD[(String, String, Option[Stats])] = ???
+  def assignment_10(commits: RDD[Commit]): RDD[(String, String, Option[Stats])] = {
+    commits
+      .map(c => ((c.commit.committer.name, c.url.split("/")(5)), c.stats))
+      .reduceByKey{
+        case (Some(s1), Some(s2)) => Option(Stats(s1.total + s2.total, s1.additions + s2.additions, s1.deletions + s2.deletions))
+        case (Some(s1), _) => Some(s1)
+        case (_, Some(s2)) => Some(s2)
+        case (_) => None
+      }
+      .map{
+        case ((name, repo), stats) => (name, repo, stats)
+      }
+  }
 
 
   /**
