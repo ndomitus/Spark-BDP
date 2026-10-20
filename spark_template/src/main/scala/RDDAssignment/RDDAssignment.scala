@@ -164,7 +164,7 @@ object RDDAssignment {
     */
   def assignment_7(commits: RDD[Commit]): RDD[(String, Long, Iterable[String])] = {
     commits
-      .map(c => (c.url.split("/")(5), (1L, Set(c.commit.author.name))))
+      .map(c => (c.url.split("/")(5), (1L, Set(c.commit.committer.name))))
       .reduceByKey{
         case ((count1, name1), (count2, name2)) => (count1 + count2,name1.union(name2))
       }
