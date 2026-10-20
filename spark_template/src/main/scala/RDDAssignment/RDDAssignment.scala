@@ -182,7 +182,21 @@ object RDDAssignment {
     * @param commits RDD containing commit data.
     * @return RDD containing the files in each repository as described above.
     */
-  def assignment_8(commits: RDD[Commit]): RDD[(String, Iterable[File])] = ???
+  def assignment_8(commits: RDD[Commit]): RDD[(String, Iterable[File])] = {
+    commits
+      .flatMap{ c =>
+        val repo = c.url.split("/")(5)
+        val date = c.commit.author.date
+        c.files.flatMap(f => f.filename.map(fn => ((repo, fn), (date, f))))
+      }
+      .reduceByKey{
+        case ((date1, file1), (date2, file2)) =>  if (date1.after(date2)) (date1, file1) else (date2, file2)
+      }
+      .map{
+        case ((repo, fn), (date, f)) => (repo, Iterable(f))
+      }
+      .reduceByKey(_++_)
+  }
 
 
   /**
