@@ -3,7 +3,7 @@ package RDDAssignment
 import java.util.UUID
 import java.math.BigInteger
 import java.security.MessageDigest
-import org.apache.spark.graphx.Graph
+import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.rdd.RDD
 import utils.{Commit, File, Stats}
 
@@ -286,5 +286,23 @@ object RDDAssignment {
     * @param commits RDD containing commit data.
     * @return Graph representation of the commits as described above.
     */
-  def assignment_11(commits: RDD[Commit]): Graph[(String, String), String] = ???
+  def assignment_11(commits: RDD[Commit]): Graph[(String, String), String] = {
+    val pairs = commits
+      .map(c => (c.commit.committer.name, c.url.split("/").slice(4, 6).mkString("/")))
+      .distinct()
+
+    val developers = pairs.map(_._1).distinct()
+      .map(name => (md5HashString(name), (name, "developer")))
+
+    val repositories = pairs.map(_._2).distinct()
+      .map(repo => (md5HashString(repo), (repo, "repository")))
+
+    val vertices = developers.union(repositories)
+
+    val edges = pairs.map { case (name, repo) =>
+      Edge(md5HashString(name), md5HashString(repo), "commits to")
+    }
+
+    Graph(vertices, edges)
+  }
 }
