@@ -232,5 +232,22 @@ object DFAssignment {
     * @return DataFrame containing the parent and child repository names, the SHA of the commit from which a new fork
     *         has been created and the SHA of the first commit in the fork repository
     */
-  def assignment_19(commits: DataFrame): DataFrame = ???
+  def assignment_19(commits: DataFrame): DataFrame = {
+    val childView = commits
+      .select(
+        concat_ws("/", split(col("url"), "/").getItem(4), split(col("url"), "/").getItem(5)).as("child_repo_name"),
+        col("sha").as("child_sha"),
+        explode(col("parents.sha")).as("parent_sha")
+      )
+
+    val parentView = commits
+      .select(
+        concat_ws("/", split(col("url"), "/").getItem(4), split(col("url"), "/").getItem(5)).as("repo_name"),
+        col("sha").as("parent_sha")
+      )
+
+    parentView.join(childView, "parent_sha")
+      .where(col("repo_name") =!= col("child_repo_name"))
+      .select("repo_name", "child_repo_name", "parent_sha", "child_sha")
+  }
 }
