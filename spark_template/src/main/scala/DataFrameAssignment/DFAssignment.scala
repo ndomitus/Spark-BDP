@@ -199,7 +199,16 @@ object DFAssignment {
     * @return DataFrame containing the commit SHAs from which at least one new branch has been created, and the actual
     *         number of created branches
     */
-  def assignment_18(commits: DataFrame): DataFrame = ???
+  def assignment_18(commits: DataFrame): DataFrame = {
+    commits
+      .select(
+        explode(col("parents.sha")).as("sha")
+      )
+      .groupBy("sha")
+      .agg(count("*").as("times_parent"))
+      .where(col("times_parent") > 1)
+      .join(commits.select(col("sha")), "sha")
+  }
 
   /**
     * In the given commit DataFrame, find all commits from which a fork has been created. We are interested in the names
