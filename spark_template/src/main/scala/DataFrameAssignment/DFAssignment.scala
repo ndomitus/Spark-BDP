@@ -1,8 +1,8 @@
 package DataFrameAssignment
 
 import java.sql.Timestamp
-
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 
 /**
@@ -113,7 +113,21 @@ object DFAssignment {
     * @param authorName Name of the author for which the result must be generated.
     * @return DataFrame with an appended column expressing the number of days since last commit, for the given user.
     */
-  def assignment_15(commits: DataFrame, authorName: String): DataFrame = ???
+  def assignment_15(commits: DataFrame, authorName: String): DataFrame = {
+    val w = Window.orderBy("date") //partitionBy("name").orderBy("date")
+
+    commits
+      .where(col("commit.committer.name") === authorName)
+      .select(
+        col("_id.`$oid`").as("$oid"),
+        col("commit.author.name").as("name"),
+        col("commit.author.date").as("date")
+      )
+      .withColumn("time_diff",
+        coalesce(datediff(col("date"), lag(col("date"), 1).over(w)), lit(0))
+      )
+      .orderBy("date")
+  }
 
   /**
     * To get a bit of insight into the spark SQL and its aggregation functions, you will have to implement a function
