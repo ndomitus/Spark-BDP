@@ -57,7 +57,16 @@ object DFAssignment {
     * @return DataFrame containing 4 columns: repository name, week number, year and the number of commits for that
     *         week.
     */
-  def assignment_13(commits: DataFrame): DataFrame = ???
+  def assignment_13(commits: DataFrame): DataFrame = {
+    commits
+      .select(
+        split(col("url"), "/").getItem(5).as("repository"),
+        weekofyear(col("commit.committer.date")).as("week"),
+        year(col("commit.committer.date")).as("year")
+      )
+      .groupBy("repository", "week", "year")
+      .count()
+  }
 
   /**
     * A developer is interested in the age of commits in seconds. Although this is something that can always be
