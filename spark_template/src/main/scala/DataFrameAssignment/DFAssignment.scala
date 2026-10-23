@@ -3,6 +3,7 @@ package DataFrameAssignment
 import java.sql.Timestamp
 
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
 
 /**
   * Please read the comments carefully, as they describe the expected result and may contain hints in how
@@ -30,7 +31,15 @@ object DFAssignment {
     *                SHA's.
     * @return DataFrame of commits from the requested authors, including the commit SHA and the according timestamp.
     */
-  def assignment_12(commits: DataFrame, authors: Seq[String]): DataFrame = ???
+  def assignment_12(commits: DataFrame, authors: Seq[String]): DataFrame = {
+    commits.where(col("commit.committer.name").isin(authors: _*))
+      .select(
+        col("commit.committer.name").as("commit ter"),
+        col("sha"),
+        col("commit.committer.date").as("timestamp")
+      )
+      .orderBy("timestamp")
+  }
 
   /**
     * In order to generate weekly dashboards for all projects, we need the data to be partitioned by weeks. As projects
