@@ -173,7 +173,12 @@ object DFAssignment {
     * @return the original DataFrame with an appended column `commit_time_diff`, containing the time difference
     *         (in number of seconds) between authorizing and committing.
     */
-  def assignment_17(commits: DataFrame): DataFrame = ???
+  def assignment_17(commits: DataFrame): DataFrame = {
+    commits
+      .withColumn("commit_time_diff",
+        unix_timestamp(to_timestamp(col("commit.committer.date"))) - unix_timestamp(to_timestamp(col("commit.author.date")))
+      )
+  }
 
   /**
     * Using DataFrames, find all the commit SHA's from which a branch has been created, including the number of
