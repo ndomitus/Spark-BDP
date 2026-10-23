@@ -146,7 +146,14 @@ object DFAssignment {
     * @return DataFrame containing a `day` column and a `commits_per_day` column representing the total number of
     *         commits that have been made on that week day.
     */
-  def assignment_16(commits: DataFrame): DataFrame = ???
+  def assignment_16(commits: DataFrame): DataFrame = {
+    commits
+      .select(
+        dayofweek(col("commit.committer.date")).as("day")
+      )
+      .groupBy("day")
+      .agg(count("*").as("commits_per_day"))
+  }
 
   /**
     * Commits can be uploaded on different days. We want to get insight into the difference in commit time of the author and
