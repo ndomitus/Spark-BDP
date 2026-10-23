@@ -287,20 +287,25 @@ object RDDAssignment {
     * @return Graph representation of the commits as described above.
     */
   def assignment_11(commits: RDD[Commit]): Graph[(String, String), String] = {
+
     val pairs = commits
-      .map(c => (c.commit.committer.name, c.url.split("/").slice(4, 6).mkString("/")))
+      .map(c => (c.commit.committer.name, c.url.split("/").slice(4,6).mkString("/")))
       .distinct()
 
-    val developers = pairs.map(_._1).distinct()
-      .map(name => (md5HashString(name), (name, "developer")))
+    val developers = pairs.map{
+        case (committer, _) => (md5HashString(committer), (committer, "developer"))
+      }
+      .distinct()
 
-    val repositories = pairs.map(_._2).distinct()
-      .map(repo => (md5HashString(repo), (repo, "repository")))
+    val repos = pairs.map{
+      case (_, repo) => (md5HashString(repo), (repo, "repository"))
+    }
+      .distinct()
 
-    val vertices = developers.union(repositories)
+    val vertices = developers.union(repos)
 
-    val edges = pairs.map { case (name, repo) =>
-      Edge(md5HashString(name), md5HashString(repo), "commits to")
+    val edges = pairs.map{
+      case (committer, repo) => Edge(md5HashString(committer), md5HashString(repo), "commits to")
     }
 
     Graph(vertices, edges)
