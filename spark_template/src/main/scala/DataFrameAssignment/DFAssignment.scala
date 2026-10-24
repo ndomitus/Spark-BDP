@@ -200,7 +200,9 @@ object DFAssignment {
     *         number of created branches
     */
   def assignment_18(commits: DataFrame): DataFrame = {
-    commits
+    val deDuplicated = commits.dropDuplicates("sha")
+
+    deDuplicated
       .select(
         explode(col("parents.sha")).as("sha")
       )
