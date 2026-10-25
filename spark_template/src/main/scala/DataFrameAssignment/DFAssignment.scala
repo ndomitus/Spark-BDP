@@ -208,8 +208,7 @@ object DFAssignment {
       )
       .groupBy("sha")
       .agg(count("*").as("times_parent"))
-      .where(col("times_parent") > 1)
-      .join(commits.select(col("sha")), "sha")
+      .join(deDuplicated.select(col("sha")), "sha")
   }
 
   /**
