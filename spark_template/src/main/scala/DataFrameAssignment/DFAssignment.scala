@@ -200,15 +200,14 @@ object DFAssignment {
     *         number of created branches
     */
   def assignment_18(commits: DataFrame): DataFrame = {
-    val deDuplicated = commits.dropDuplicates("sha")
-
-    deDuplicated
+    commits
       .select(
         explode(col("parents.sha")).as("sha")
       )
       .groupBy("sha")
       .agg(count("*").as("times_parent"))
-      .join(deDuplicated.select(col("sha")), "sha")
+      .where(col("times_parent") > 1)
+      .join(commits.select(col("sha")), "sha").distinct()
   }
 
   /**
